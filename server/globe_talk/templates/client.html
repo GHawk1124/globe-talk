@@ -2,115 +2,52 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Join Room</title>
-    <link href="https://fonts.googleapis.com/css2?family=Arial&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css" integrity="sha384-Bfad6CLCknfcloXFOyFnlgtENryhrpZCe29RTifKEixXQZ38WheV+i/6YWSzkz3V" crossorigin="anonymous">
-    <style>
-      * {
-        box-sizing: border-box;
-        font-family: 'Arial', sans-serif;
-      }
-
-      body {
-        background-color: #333;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-      }
-
-      .username-container {
-        background-color: #444;
-        padding: 10px 20px;
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-      }
-
-      input[type="text"] {
-        width: 200px;
-        padding: 10px;
-        font-size: 18px;
-        border: none;
-        border-radius: 5px;
-        outline: none;
-        margin-right: 10px;
-      }
-
-      .language-button {
-        background-color: #444;
-        padding: 10px 20px;
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-        margin-top: 10px;
-        cursor: pointer;
-      }
-
-      .language-button i {
-        margin-left: 5px;
-      }
-
-      .language-dropdown {
-        position: absolute;
-        background-color: #444;
-        border-radius: 5px;
-        display: none;
-      }
-
-      .language-dropdown-item {
-        color: #fff;
-        padding: 10px 20px;
-        display: block;
-        text-align: left;
-        border-bottom: 1px solid #555;
-      }
-
-      .language-dropdown-item:hover {
-        background-color: #555;
-        color: #fff;
-        cursor: pointer;
-      }
-
-      .join-room-button {
-        background-color: #0070c9;
-        color: #fff;
-        padding: 10px 20px;
-        border-radius: 5px;
-        display: block;
-        text-align: center;
-        text-decoration: none;
-        margin-top: 10px;
-        cursor: pointer;
-      }
-
-      .language-button:hover + .language-dropdown,
-      .language-dropdown:hover {
-        display: block;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
-    <div class="username-container">
-      <input type="text" placeholder="Username">
-    </div>
-    <div class="language-button">
-      <span id="selected-language">Language</span> <i class="fas fa-caret-down"></i>
-      <div class="language-dropdown">
-        <div class="language-dropdown-item" onclick="selectLanguage('English')">English</div>
-        <div class="language-dropdown-item" onclick="selectLanguage('Spanish')">Spanish</div>
-        <div class="language-dropdown-item" onclick="selectLanguage('French')">French</div>
-        <div class="language-dropdown-item" onclick="selectLanguage('German')">German</div>
+    <div class="container">
+      <div class="header">
+        <label class="switch">
+          <input type="checkbox" id="themeToggle">
+          <span class="slider round"></span>
+        </label>
+      </div>
+      <div class="form">
+        <h3>Join Room</h3>
+        <div class="input-group">
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username">
+        </div>
+        <div class="input-group">
+          <label for="language">Language:</label>
+          <select id="language" name="language">
+            <option value="English">English</option>
+            <option value="Spanish">Spanish</option>
+            <option value="French">French</option>
+            <option value="German">German</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="roomCode">Room Code:</label>
+          <input type="text" id="roomCode" name="roomCode">
+        </div>
+        <button type="submit" class="btn">Join Room</button>
       </div>
     </div>
-    <a href="#" class="join-room-button">Join Room</a>
-    <script>
-      function selectLanguage(language) {
-        document.getElementById('selected-language').innerHTML = language;
-      }
-    </script>
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script type="text/javascript">
+        const themeToggle = document.getElementById("themeToggle");
+        const body = document.querySelector("body");
+      
+        themeToggle.addEventListener("change", function() {
+          if (themeToggle.checked) {
+            body.classList.add("dark-theme");
+            body.classList.remove("light-theme");
+          } else {
+            body.classList.add("light-theme");
+            body.classList.remove("dark-theme");
+          }
+        });
+      </script>
   </body>
 </html>
