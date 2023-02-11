@@ -1,19 +1,6 @@
-from flask import Flask, request, jsonify
-from flask_socketio import SocketIO
+from globe_talk import create_app, socketio
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'wubba lubba dub dub'
-socketio = SocketIO(app)
-
-@app.route("/join-room", method="POST")
-def join_room():
-    
-    data = {'data': 'You have just connected to a room with the id: 1'}
-    return jsonify(data)
-
-@socketio.on("connect")
-def user_chat_connect():
-
+app = create_app(debug=True)
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0')

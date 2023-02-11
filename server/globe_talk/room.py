@@ -40,7 +40,7 @@ def join():
             print(f"joined room {room_name}")
             session.clear()
             session['room_connection'] = room_name
-            return redirect(url_for("index"))
+            return redirect(url_for("main.index"))
             
         flash(error)
     # elif request.method == 'GET':
@@ -63,7 +63,7 @@ def join():
 @bp.route("/leave")
 def leave():
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for('main.index'))
 
 @bp.before_app_request
 def load_connected_user():
