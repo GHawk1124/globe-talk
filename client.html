@@ -1,53 +1,108 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <meta charset="UTF-8">
     <title>Join Room</title>
     <link rel="stylesheet" type="text/css" href="style.css">
-  </head>
-  <body>
+</head>
+
+<body>
     <div class="container">
-      <div class="header">
-        <label class="switch">
-          <input type="checkbox" id="themeToggle">
-          <span class="slider round"></span>
-        </label>
-      </div>
-      <div class="form">
-        <h3>Join Room</h3>
-        <div class="input-group">
-          <label for="username">Username:</label>
-          <input type="text" id="username" name="username">
+        <div class="header">
+            <label class="switch">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider round"></span>
+            </label>
         </div>
-        <div class="input-group">
-          <label for="language">Language:</label>
-          <select id="language" name="language">
-            <option value="English">English</option>
-            <option value="Spanish">Spanish</option>
-            <option value="French">French</option>
-            <option value="German">German</option>
-          </select>
+        <div class="form">
+            <h3>Join Room</h3>
+            <div class="input-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username">
+            </div>
+            <div class="input-group">
+                <label for="language">Language:</label>
+                <select id="language" name="language">
+                    <option value="English">English</option>
+                    <option value="Spanish">Spanish</option>
+                    <option value="French">French</option>
+                    <option value="German">German</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="roomCode">Room Code:</label>
+                <input type="text" id="roomCode" name="roomCode">
+            </div>
+            <button type="submit" class="btn">Join Room</button>
         </div>
-        <div class="input-group">
-          <label for="roomCode">Room Code:</label>
-          <input type="text" id="roomCode" name="roomCode">
-        </div>
-        <button type="submit" class="btn">Join Room</button>
-      </div>
+        <script type="text/javascript">
+            const themeToggle = document.getElementById("themeToggle");
+            const body = document.querySelector("body");
+
+            themeToggle.addEventListener("change", function () {
+                if (themeToggle.checked) {
+                    body.classList.add("dark-theme");
+                    body.classList.remove("light-theme");
+                } else {
+                    body.classList.add("light-theme");
+                    body.classList.remove("dark-theme");
+                }
+            });
+
+            const form = document.querySelector(".form");
+            const usernameInput = document.getElementById("username");
+            const roomCodeInput = document.getElementById("room-code");
+            const joinRoomButton = document.querySelector(".join-room-button");
+
+            joinRoomButton.addEventListener("click", async function (event) {
+                event.preventDefault();
+
+                const username = usernameInput.value;
+                const roomCode = roomCodeInput.value;
+
+                // Create a new RTCPeerConnection object
+                const peerConnection = new RTCPeerConnection();
+
+                // Send a request to the Flask server to create a new room
+                const response = await fetch(`http://localhost:5000/create_room?username=${username}&room_code=${roomCode}`);
+                const data = await response.json();
+
+                // Set the remote description on the peer connection
+                peerConnection.setRemoteDescription(data.offer);
+
+                // Create an answer to the offer
+                const answer = await peerConnection.createAnswer();
+
+                // Set the local description on the peer connection
+                peerConnection.setLocalDescription(answer);
+
+                // Send the answer back to the Flask server
+                await fetch(`http://localhost:5000/answer_offer?username=${username}&room_code=${roomCode}`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        sdp: answer.sdp,
+                        type: answer.type
+                    })
+                });
+
+
+                // Start listening for incoming ICE candidates
+                peerConnection.addEventListener("icecandidate", function (event) {
+                    if (event.candidate) {
+                        // Send the ICE candidate to the Flask server
+                        fetch(`http://localhost:5000/add_ice_candidate?username=${username}&room_code=${roomCode}`, {
+                            method: "POST",
+                            body: JSON.stringify({
+                                candidate: event.candidate
+                            })
+                        });
+                    }
+                });
+            });
+        </script>
+
     </div>
-    <script type="text/javascript">
-        const themeToggle = document.getElementById("themeToggle");
-        const body = document.querySelector("body");
-      
-        themeToggle.addEventListener("change", function() {
-          if (themeToggle.checked) {
-            body.classList.add("dark-theme");
-            body.classList.remove("light-theme");
-          } else {
-            body.classList.add("light-theme");
-            body.classList.remove("dark-theme");
-          }
-        });
-      </script>
-  </body>
+</body>
+
 </html>
