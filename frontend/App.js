@@ -16,6 +16,7 @@ function LanguageSelector() {
         onChange={handleChange}
       >
         <option value="English">English</option>
+        <option value="ASL (Sign Language)">ASL</option>
         <option value="French">French</option>
         <option value="German">German</option>
         <option value="Spanish">Spanish</option>
