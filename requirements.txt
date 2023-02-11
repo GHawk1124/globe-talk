@@ -13,10 +13,10 @@ h2==3.2.0
 hpack==3.0.0
 hstspreload==2023.1.1
 httpcore==0.9.1
-httpx==0.13.3
+httpx
 huggingface-hub==0.12.0
 hyperframe==5.2.0
-idna==2.10
+#idna==2.10
 more-itertools==9.0.0
 numpy==1.24.2
 openai-whisper @ git+https://github.com/openai/whisper.git@7858aa9c08d98f75575035ecd6481f462d66ca27
@@ -175,7 +175,7 @@ regex==2022.10.31
 Flask==2.2.2
 Flask-SocketIO==5.3.2
 greenlet==2.0.0.post0
-idna==3.4
+idna
 itsdangerous==2.1.2
 Jinja2==3.1.2
 MarkupSafe==2.1.2
