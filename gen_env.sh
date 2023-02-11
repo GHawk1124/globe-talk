@@ -1,3 +1,3 @@
+conda create -n globe_talk python=3.10
 conda activate globe_talk
-conda env export
-pip freeze > requirements.txt
+pip install -r requirements.txt
