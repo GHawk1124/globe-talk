@@ -1,6 +1,7 @@
 import speech_recognition as sr
 import googletrans
 import gtts  
+import threading
 from io import BytesIO 
 from pydub import AudioSegment
 from pydub.playback import play
@@ -55,7 +56,7 @@ def say(text, to_code):
 def main():
     print("Starting...")
     from_code = "en"
-    to_code = "ko"
+    to_code = "te"
     r = setup_microphone()
     translator = setup_translator()
     while True:
