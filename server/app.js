@@ -13,29 +13,6 @@ const fs = require("fs");
 // input from forms
 const bodyParser = require("body-parser");
 
-// Configuring express to use body-parser
-// as middle-ware
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
-// Get request for root of the app
-app.get("/", function(req, res) {
-
-  // Sending index.html to the browser
-  res.sendFile(__dirname + "/simple.html");
-});
-
-// Post request for geetting input from
-// the form
-app.post("/mssg", function(req, res) {
-
-  // Logging the form body
-  console.log(req.body);
-
-  // Redirecting to the root
-  res.redirect("/");
-});
-
 // Creating object of key and certificate
 // for SSL
 const options = {
@@ -43,10 +20,43 @@ const options = {
   cert: fs.readFileSync("server.cert"),
 };
 
+const server = https.createServer(options, app);
+const { Server } = require('socket.io')
+
+const io = new Server(server)
+
+io.on('transmit', (socket) => {
+  fs.writeFileSync(socket);
+  console.log("Recording is being transmitted");
+  console.log(socket['data']);
+});
+
+// Configuring express to use body-parser
+// as middle-ware
+app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(bodyParser.raw({ limit: '1000MB' }))
+// Get request for root of the app
+app.get("/", function (req, res) {
+
+  // Sending index.html to the browser
+  res.sendFile(__dirname + "/simple.html");
+});
+
+app.get("/hark.js", function (req, res) {
+  res.sendFile(__dirname + "/hark.bundled.js");
+})
+
+// Post request for geting input from
+// the form
+app.post("/audio", function (req, res) {
+  console.log(req.body);
+  fs.createWriteStream("audio.webm").write(req.body);
+});
 // Creating https server by passing
 // options and app object
-https.createServer(options, app)
-  .listen(3000, function(req, res) {
-    console.log("Server started at port 3000");
-  });
+
+server.listen(8080, () => {
+  console.log("Server started at port 8080");
+});
 

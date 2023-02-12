@@ -1,20 +1,85 @@
 <script src="https://muazkhan.com:9001/dist/RTCMultiConnection.min.js"></script>
-<script src="https://muazkhan.com:9001/socket.io/socket.io.js"></script>
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script src="hark.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <button id="btn-open-room">Open Room</button>
 <button id="btn-join-room">Join Room</button>
 <hr>
 
 <script>
-  var connection = new RTCMultiConnection();
+  function initHark(args) {
+    if (!window.hark) {
+      throw 'Please link hark.js';
+      return;
+    }
 
+    var connection = args.connection;
+    var event = args.event;
+    var stream = args.stream;
+    var options = {};
+    var speechEvents = new hark(stream, options);
+    console.log("streammmm", stream.getAudioTracks());
+    var mediaStream = new MediaStream(stream.getAudioTracks())
+    var mediaRecorder = new MediaRecorder(mediaStream); 
+    var socket = io();
+
+    const chunks = [];
+
+    mediaRecorder.ondataavailable = (event) => {
+      chunks.push(event.data);
+    }
+
+    mediaRecorder.onstop = (event) => {
+      const blob = new Blob(chunks, { type: mediaRecorder.mimeType });
+      console.log(blob);
+      socket.emit("transmit", "test");
+      axios.post('/audio', blob)
+        .then(function (response) {
+          console.log(response);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      console.log("sent the stuff");
+    }
+
+    speechEvents.on('speaking', function () {
+      connection.send({
+        userid: connection.userid,
+        type: "speaking"
+      });
+      var img = document.getElementById(connection.userid);
+      if (img) {
+        img.style.border = '3px solid red';
+      }
+      console.log("starting media recorder");
+      mediaRecorder.start();
+    });
+
+    speechEvents.on('stopped_speaking', function () {
+      connection.send({
+        userid: connection.userid,
+        type: "silence"
+      });
+      var img = document.getElementById(connection.userid);
+      if (img) {
+        img.style.border = 0;
+      }
+      console.log("stopping media recorder");
+      mediaRecorder.stop();
+    });
+  }
+
+  var connection = new RTCMultiConnection();
   // this line is VERY_important
-  connection.socketURL = 'https://muazkhan.com:9001/';
+  connection.socketURL = '/';
 
   // all below lines are optional; however recommended.
 
   connection.session = {
     audio: true,
-    video: true
+    video: true,
+    data: true
   };
 
   connection.sdpConstraints.mandatory = {
@@ -22,8 +87,35 @@
     OfferToReceiveVideo: true
   };
 
-  connection.onstream = function (event) {
-    document.body.appendChild(event.mediaElement);
+  connection.onmessage = function (event) {
+    var mediaElement = document.getElementById(event.data.userid);
+
+    switch (event.data.type) {
+      case 'speaking':
+        mediaRecorder.start()
+        if (mediaElement) {
+          mediaElement.style.border = "3px solid red";
+        }
+        break;
+      case 'silence':
+        mediaRecorder.stop()
+        if (mediaElement) {
+          mediaElement.style.border = 0;
+        }
+        break;
+      default:
+
+    }
+  };
+
+  connection.onstream = function (e) {
+    initHark({
+      stream: e.stream,
+      event: e,
+      connection: connection,
+    });
+    e.mediaElement.id = e.userid;
+    document.body.appendChild(e.mediaElement);
   };
 
   var predefinedRoomId = 'hackathon';
